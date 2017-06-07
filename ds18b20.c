@@ -1,4 +1,5 @@
-// sudo nano /boot/config.txt to add
+// sudo nano /boot/config.txt to add though you can also set this
+// via raspi-config by selecting one-wire protocol
 // dtoverlay=w1-gpio
 
 #include <stdio.h>
@@ -15,8 +16,8 @@ int main (void) {
 	DIR *dir;
 	FILE *fp;
 	struct dirent *dirent;
-	char email[]="wpballa.wine@gmail.com";
-//	char phone[]="9257846015";
+// set this to your own email address
+	char email[]="wpballa.wine@gmail.com"
 	char dev[16];      // Dev ID
 	char devPath[128]; // Path to device
 	char buf[256];     // Data from device
@@ -105,7 +106,7 @@ int main (void) {
 		sys_string = out_string;
 		ix = system(sys_string);
 	}
-        return 1;
+        return ix;
 }
 
 // Compiling & Running
