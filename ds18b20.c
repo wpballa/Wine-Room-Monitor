@@ -17,7 +17,7 @@ int main (void) {
 	FILE *fp;
 	struct dirent *dirent;
 // set this to your own email address
-	char email[]="your_email@gmail.com"
+	char email[]="your_email@gmail.com";
 	char dev[16];      // Dev ID
 	char devPath[128]; // Path to device
 	char buf[256];     // Data from device
