@@ -26,7 +26,7 @@ int main (void) {
 	FILE *fp;
 	struct dirent *dirent;
 //  set this to your own email address for delivery of warnings
-	char *email="wpballa1@gmail.com";
+	char *email="youre-email@gmail.com";
 	char dev[16];      // Dev ID
 	char devPath[128]; // Path to device
 	char buf[256];     // Data from device
