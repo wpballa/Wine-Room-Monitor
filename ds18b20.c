@@ -1,6 +1,15 @@
+// version for Debian Buster
+// Bill Ballard 3-18-20
+
 // sudo nano /boot/config.txt to add though you can also set this
 // via raspi-config by selecting one-wire protocol
 // dtoverlay=w1-gpio
+// also sudo apt-get install s-nail
+// if you are using Buster lite
+
+// to compile
+// gcc -Wall -std=gnu99 ds18b20.c -o ds18b20
+// Run the code by typing ./ds18b20.
 
 #include <stdio.h>
 #include <ctype.h>
@@ -16,8 +25,8 @@ int main (void) {
 	DIR *dir;
 	FILE *fp;
 	struct dirent *dirent;
-// set this to your own email address
-	char email[]="your_email@gmail.com";
+//  set this to your own email address for delivery of warnings
+	char *email="9257846015@vtext.com";
 	char dev[16];      // Dev ID
 	char devPath[128]; // Path to device
 	char buf[256];     // Data from device
@@ -28,12 +37,10 @@ int main (void) {
 	float fail=63.0;
 	float tempC=0.0;
 	float tempF=0.0;
-	int ix;
 	char out_string[200];
 	char *sys_string;
 	time_t current_time;
 	current_time=time(NULL);
-	out_string[0]='\0';
 
 	dir = opendir (path);
 	if (dir != NULL)
@@ -62,26 +69,29 @@ int main (void) {
 // Read temp
 // Opening the device's file triggers new reading
 
-	int fd = open(devPath, O_RDONLY);
-	if(fd == -1)
+    do
 	{
-		perror ("Couldn't open the w1 device.");
-		return 1;
-	}
-	while((numRead = read(fd, buf, 256)) > 0)
-	{
-		strncpy(tmpData, strstr(buf, "t=") + 2, 5);
-		tempC = strtof(tmpData, NULL);
-		tempC = tempC/1000;
-		tempF = tempC*9./5.+32.;
+    	int fd = open(devPath, O_RDONLY);
+	    if(fd == -1)
+    	{
+		    perror ("Couldn't open the w1 device.");
+		    return 1;
+	    }
+	    while((numRead = read(fd, buf, 256)) > 0)
+	    {
+		    strncpy(tmpData, strstr(buf, "t=") + 2, 5);
+		    tempC = strtof(tmpData, NULL);
+		    tempC = tempC/1000;
+		    tempF = tempC*9./5.+32.;
 
 // debug lines
-//		printf("Device: %s  - ", dev);
-//		printf("Temp: %.3f C  ", tempC);
-//		printf("%.3f F\n\n\n", tempF);
-
-	}
-	close(fd);
+//		    printf("Device: %s  - ", dev);
+//		    printf("Temp: %.3f C  ", tempC);
+		    printf("%.3f F\n\n\n", tempF);
+	    }
+	    close(fd);
+	} while ((tempF>257.) || (tempF<32.));
+// above line was added to prevent ridiculous temperatures in Buster
 
 // Now, write to log file
 
@@ -94,26 +104,17 @@ int main (void) {
 //  and phone number!
 
  	if(tempF > fail) {
-		sprintf(out_string, "echo \'wine room fail %5.1f F\' | "
-		"mail -s \'wine room fail %5.1f F\' %s",
+		sprintf(out_string, "echo \'wine room fail %5.1f F\' |"
+		" s-nail -s \'wine room fail %5.1f F\' %s",
 		tempF, tempF, email);
 		sys_string = out_string;
-   		ix = system(sys_string);
+   		system(sys_string);
 	} else if (tempF > alarm) {
-		sprintf(out_string, "echo \'wine room alarm %5.1f F\' | "
-		"mail -s \'wine room alarm %5.1f F\' %s",
+		sprintf(out_string, "echo \'wine room alarm %5.1f F\' |"
+		" s-nail -s \'wine room alarm %5.1f F\' %s",
 		tempF, tempF, email);
 		sys_string = out_string;
-		ix = system(sys_string);
+		system(sys_string);
 	}
-        return ix;
+        return 1;
 }
-
-// Compiling & Running
-
-// Assuming the code is saved in a file called ds18b20.c,
-// run the following to compile -
-
-//gcc -Wall -std=gnu99 ds18b20.c -o ds18b20
-
-//Run the code by typing ./ds18b20.
